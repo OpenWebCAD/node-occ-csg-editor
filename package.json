@@ -1,0 +1,29 @@
+{
+  "name": "occ-csg-editor",
+  "version": "0.1.0",
+  "description": "node-occ csg editor module",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha",
+    "eslint": "eslint lib test"
+  },
+  "keywords": [
+    "node-occ"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenWebCAD/node-occ-csg-editor.git"
+  },
+  "author": "etienne.rossignon@gadz.org",
+  "license": "MIT",
+  "devDependencies": {
+    "should": "^11.2.1"
+  },
+  "dependencies": {
+    "serialijse": "0.0.19"
+  }
+}
