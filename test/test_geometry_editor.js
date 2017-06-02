@@ -169,6 +169,23 @@ describe("Testing GeometryEditor can be converted to script", function () {
     }
 
 
+    function buildDemoParameterizedObjectWithBox() {
+        const geometryEditor = new GeometryEditor();
+
+        geometryEditor.setParameters([{id:"$A",value:10},{id:"$B",value:"Math.sin(30)*$A"},{id:"$C",value:12}]);
+
+        const box1 = geometryEditor.addBox();
+        box1.point1.X.set(0);
+        box1.point1.Y.set(0);
+        box1.point1.Z.set(0);
+
+        box1.point2.X.set("$A");
+        box1.point2.Y.set("$B");
+        box1.point2.Z.set("$A+$B");
+        return geometryEditor;
+    }
+
+
     it("should create a script for a simple box", function () {
         const g1 = buildDemoObjectWithBox();
         const script = g1.convertToScript();
@@ -251,10 +268,6 @@ describe("Testing GeometryEditor can be converted to script", function () {
         // this is important because  GeometryEditor will exists as text inside NarmerStudies
         // and will be transferred as text to the client browser. GeometryEditor will have to be
         // manipulated as complex Javascript objcet on Server and Client and  between the two.
-
-        //POJO = { "a": 1 }
-        // var str = pojo.toJSON();
-        // var pojo = JSON.parse(str);
 
         const g1 = buildDemoObjectCutBoxes();
 
@@ -502,4 +515,29 @@ describe("Testing GeometryEditor can be converted to script", function () {
         g1.elements[2].toScript().should.eql("csg.cut(shape1,shape0);");
 
     });
+
+
+    it("should create a geometry with some parameters",function() {
+        const g = buildDemoParameterizedObjectWithBox();
+        g.getParameters().length.should.eql(3);
+        g.getParameters()[0].id.should.eql("$A");
+        g.getParameters()[1].id.should.eql("$B");
+        g.getParameters()[2].id.should.eql("$C");
+
+        g.convertToScript().should.eql(
+ `var $A = 10;
+var $B = Math.sin(30)*$A;
+var $C = 12;
+var shape0 = csg.makeBox([0,0,0],[$A,$B,$A+$B]);`
+        );
+
+        g.setParameter("$A",20);
+        g.convertToScript().should.eql(
+`var $A = 20;
+var $B = Math.sin(30)*$A;
+var $C = 12;
+var shape0 = csg.makeBox([0,0,0],[$A,$B,$A+$B]);`
+        );
+    });
+
 });
