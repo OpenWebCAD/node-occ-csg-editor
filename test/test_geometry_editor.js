@@ -172,7 +172,7 @@ describe("Testing GeometryEditor can be converted to script", function () {
     function buildDemoParameterizedObjectWithBox() {
         const geometryEditor = new GeometryEditor();
 
-        geometryEditor.setParameters([{id:"$A",value:10},{id:"$B",value:"Math.sin(30)*$A"},{id:"$C",value:12}]);
+        geometryEditor.setParameters([{id:"A",value:10},{id:"B",value:"Math.sin(30)*$A"},{id:"C",value:12}]);
 
         const box1 = geometryEditor.addBox();
         box1.point1.X.set(0);
@@ -520,9 +520,9 @@ describe("Testing GeometryEditor can be converted to script", function () {
     it("should create a geometry with some parameters",function() {
         const g = buildDemoParameterizedObjectWithBox();
         g.getParameters().length.should.eql(3);
-        g.getParameters()[0].id.should.eql("$A");
-        g.getParameters()[1].id.should.eql("$B");
-        g.getParameters()[2].id.should.eql("$C");
+        g.getParameters()[0].id.should.eql("A");
+        g.getParameters()[1].id.should.eql("B");
+        g.getParameters()[2].id.should.eql("C");
 
         g.convertToScript().should.eql(
  `var $A = 10;
@@ -531,7 +531,7 @@ var $C = 12;
 var shape0 = csg.makeBox([0,0,0],[$A,$B,$A+$B]);`
         );
 
-        g.setParameter("$A",20);
+        g.setParameter("A",20);
         g.convertToScript().should.eql(
 `var $A = 20;
 var $B = Math.sin(30)*$A;
