@@ -141,6 +141,24 @@ describe("Testing GeometryEditor can be converted to script", function () {
 
     }
 
+    function buildDemoObjectWithFuse() {
+        const g = buildDemoObjectCutBoxes();
+        const fuse = g.addFuseOperation();
+        fuse.leftArg.set(g.elements[0]);
+        fuse.rightArg.set(g.elements[1]);
+        g.deleteItem(2);
+        return g;
+    }
+
+    function buildDemoObjectWithCommon() {
+        const g = buildDemoObjectCutBoxes();
+        const common = g.addCommonOperation();
+        common.leftArg.set(g.elements[0]);
+        common.rightArg.set(g.elements[1]);
+        g.deleteItem(2);
+        return g;
+    }
+
     function buildDemoObjectWithRotate() {
         const geometryEditor = buildDemoObjectCutBoxes();
 
@@ -197,6 +215,7 @@ describe("Testing GeometryEditor can be converted to script", function () {
         script.should.match("var shape0 = csg.makeCylinder([0,0,0],[100,110,120],50);");
     });
 
+
     it("should create a script for a cut operation ", function () {
         const g1 = buildDemoObjectCutBoxes();
         const script = g1.convertToScript();
@@ -206,16 +225,66 @@ describe("Testing GeometryEditor can be converted to script", function () {
             "var shape2 = csg.cut(shape0,shape1);"
         ]);
 
-        const shape1 = g1.elements[0];
-        const shape2 = g1.elements[1];
-        const shape3 = g1.elements[2];
+        const shape0 = g1.elements[0];
+        const shape1 = g1.elements[1];
+        const shape2 = g1.elements[2];
 
+        shape0.getDependantShapes().length.should.eql(1);
         shape1.getDependantShapes().length.should.eql(1);
-        shape2.getDependantShapes().length.should.eql(1);
-        shape3.getDependantShapes().length.should.eql(0);
+        shape2.getDependantShapes().length.should.eql(0);
+
+        shape0.getShapeConnectors().length.should.eql(0);
+        shape1.getShapeConnectors().length.should.eql(0);
+        shape2.getShapeConnectors().length.should.eql(2);
+
 
     });
+    it("should create a script for a fuse operation ", function () {
+        const g1 = buildDemoObjectWithFuse();
+        const script = g1.convertToScript();
+        script.split("\n").should.eql([
+            "var shape0 = csg.makeBox([0,0,0],[100,100,100]);",
+            "var shape1 = csg.makeBox([10,10,10],[90,90,150]);",
+            "var shape3 = csg.fuse(shape0,shape1);"
+        ]);
 
+        const shape0 = g1.elements[0];
+        const shape1 = g1.elements[1];
+        const shape2 = g1.elements[2];
+
+        shape0.getDependantShapes().length.should.eql(1);
+        shape1.getDependantShapes().length.should.eql(1);
+        shape2.getDependantShapes().length.should.eql(0);
+
+        shape0.getShapeConnectors().length.should.eql(0);
+        shape1.getShapeConnectors().length.should.eql(0);
+        shape2.getShapeConnectors().length.should.eql(2);
+
+
+    });
+    it("should create a script for a common operation ", function () {
+        const g1 = buildDemoObjectWithCommon();
+        const script = g1.convertToScript();
+        script.split("\n").should.eql([
+            "var shape0 = csg.makeBox([0,0,0],[100,100,100]);",
+            "var shape1 = csg.makeBox([10,10,10],[90,90,150]);",
+            "var shape3 = csg.common(shape0,shape1);"
+        ]);
+
+        const shape0 = g1.elements[0];
+        const shape1 = g1.elements[1];
+        const shape2 = g1.elements[2];
+
+        shape0.getDependantShapes().length.should.eql(1);
+        shape1.getDependantShapes().length.should.eql(1);
+        shape2.getDependantShapes().length.should.eql(0);
+
+        shape0.getShapeConnectors().length.should.eql(0);
+        shape1.getShapeConnectors().length.should.eql(0);
+        shape2.getShapeConnectors().length.should.eql(2);
+
+
+    });
 
     it("should propose list of possible ancestors", function () {
 
@@ -347,6 +416,8 @@ describe("Testing GeometryEditor can be converted to script", function () {
             const shape = g1.elements[2];
             shape.should.be.instanceof(geometry_editor.GeomOperationCut);
             const cloned_shape = shape.clone();
+
+            cloned_shape.getShapeConnectors().length.should.eql(2);
 
             cloned_shape.toString().should.eql(shape.toString());
         });
@@ -490,10 +561,12 @@ describe("Testing GeometryEditor can be converted to script", function () {
         // now commit the change -> this should throw
         should.throws(function () {
             g1.replaceItem(2, cloned);
-        });
+        },"expecting replaceItem to throw because cloned is invalid (it as 2 connectors pointing to the sampe shape) ");
 
         const errorList = [];
         g1.checkReplaceItem(2, cloned, errorList).should.eql(false);
+
+
         errorList.should.eql([
             "a link duplication has been found : shape0 is referenced twice by the entity"
         ]);
