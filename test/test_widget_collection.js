@@ -6,8 +6,16 @@ const should =require("should");
 let future_MyWidget;
 class MyWidgetConnector extends WidgetConnector
 {
-    isValidConnectedObject(object) {
-        return object instanceof future_MyWidget;
+    getWidgetClass() {
+        return future_MyWidget;
+    }
+}
+
+let future_YourWidget = null;
+class YourWidgetConnector extends WidgetConnector
+{
+    getWidgetClass() {
+        return future_YourWidget;
     }
 }
 
@@ -16,22 +24,39 @@ class MyWidget extends WidgetBase
     constructor(name) {
         super(name);
         this.myLink1 = new MyWidgetConnector(this);
+        this.myLink2 = new YourWidgetConnector(this);
     }
 
     clone() {
         const clone = new MyWidget(this.name);
         clone.myLink1.set(this.myLink1.get());
+        clone.myLink2.set(this.myLink2.get());
         return clone;
     }
 }
 future_MyWidget = MyWidget;
 
+class YourWidget extends WidgetBase
+{
+    constructor(name) {
+        super(name);
+    }
+
+    clone() {
+        const clone = new YourWidget(this.name);
+        return clone;
+    }
+}
+future_YourWidget = YourWidget;
 
 class MyWidgetCollection extends  WidgetCollection
 {
 
     addSomeWidget() {
         return this._registerWidget(new MyWidget());
+    }
+    getWidgetBaseClass(){
+        return MyWidget;
     }
 }
 describe("WidgetCollection",function(){
@@ -58,7 +83,6 @@ describe("WidgetCollection",function(){
         c.getPossibleAncestors(w1).length.should.eql(0);
         c.getPossibleAncestors(w2).length.should.eql(1);
         c.getPossibleAncestors(w3).length.should.eql(2);
-
 
     });
 
@@ -114,7 +138,6 @@ describe("WidgetCollection",function(){
         w3.myLink1.set(w2);
 
         // now change and replace last element
-
         const cloned_w3 = w3.clone();
         should.not.exist(cloned_w3._id,"cloned object should not have an id");
 
@@ -173,6 +196,39 @@ describe("WidgetCollection",function(){
         ww1.getDependantEntities().length.should.eql(1);
         ww2.getDependantEntities().length.should.eql(0);
         ww4.getDependantEntities().length.should.eql(0);
+    });
+
+    it("should not interfere with external links ",function() {
+        const c = new MyWidgetCollection();
+
+        const extra = new YourWidget("Extra");
+
+
+
+        extra._id= 3456;
+
+        const w1 = c.addSomeWidget("w1");
+        const w2 = c.addSomeWidget("w2");
+        w2.myLink1.set(w1);
+        w2.myLink2.set(extra);
+
+        c.getPossibleAncestors(w2).length.should.eql(1);
+
+
+        should.throws(function() {
+            c.replaceItem(w1,extra);
+        });
+
+
+        // ------------------------------------------------
+        // now simulate edition
+        // ------------------------------------------------
+
+        const cloned_w1 = w1.clone();
+        cloned_w1.name = "new Name";
+
+        c.replaceItem(w1,cloned_w1);
+
     });
 
 });
