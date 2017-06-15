@@ -16,7 +16,7 @@ describe("Testing GeometryEditor", function () {
 
         const geometryEditor = new GeometryEditor();
 
-        geometryEditor.elements.length.should.eql(0);
+        geometryEditor.items.length.should.eql(0);
 
     });
 
@@ -28,7 +28,7 @@ describe("Testing GeometryEditor", function () {
         const box1 = geometryEditor.addBox();
         box1.should.be.instanceOf(GeomPrimitiveBox);
 
-        geometryEditor.elements.length.should.eql(1);
+        geometryEditor.items.length.should.eql(1);
 
         box1.point1.X.set(0);
         box1.point1.Y.set(0);
@@ -144,8 +144,8 @@ describe("Testing GeometryEditor can be converted to script", function () {
     function buildDemoObjectWithFuse() {
         const g = buildDemoObjectCutBoxes();
         const fuse = g.addFuseOperation();
-        fuse.leftArg.set(g.elements[0]);
-        fuse.rightArg.set(g.elements[1]);
+        fuse.leftArg.set(g.items[0]);
+        fuse.rightArg.set(g.items[1]);
         g.deleteItem(2);
         return g;
     }
@@ -153,8 +153,8 @@ describe("Testing GeometryEditor can be converted to script", function () {
     function buildDemoObjectWithCommon() {
         const g = buildDemoObjectCutBoxes();
         const common = g.addCommonOperation();
-        common.leftArg.set(g.elements[0]);
-        common.rightArg.set(g.elements[1]);
+        common.leftArg.set(g.items[0]);
+        common.rightArg.set(g.items[1]);
         g.deleteItem(2);
         return g;
     }
@@ -162,7 +162,7 @@ describe("Testing GeometryEditor can be converted to script", function () {
     function buildDemoObjectWithRotate() {
         const geometryEditor = buildDemoObjectCutBoxes();
 
-        const lastBox = geometryEditor.elements[geometryEditor.elements.length - 1];
+        const lastBox = geometryEditor.items[geometryEditor.items.length - 1];
 
         const rotation = geometryEditor.addRotation();
         rotation.setGeometry(lastBox);
@@ -177,7 +177,7 @@ describe("Testing GeometryEditor can be converted to script", function () {
     function buildDemoObjectWithTranslate() {
         const geometryEditor = buildDemoObjectCutBoxes();
 
-        const lastBox = geometryEditor.elements[geometryEditor.elements.length - 1];
+        const lastBox = geometryEditor.items[geometryEditor.items.length - 1];
 
         const rotation = geometryEditor.addTranslation();
         rotation.setGeometry(lastBox);
@@ -225,9 +225,9 @@ describe("Testing GeometryEditor can be converted to script", function () {
             "var shape2 = csg.cut(shape0,shape1);"
         ]);
 
-        const shape0 = g1.elements[0];
-        const shape1 = g1.elements[1];
-        const shape2 = g1.elements[2];
+        const shape0 = g1.items[0];
+        const shape1 = g1.items[1];
+        const shape2 = g1.items[2];
 
         shape0.getDependantShapes().length.should.eql(1);
         shape1.getDependantShapes().length.should.eql(1);
@@ -248,9 +248,9 @@ describe("Testing GeometryEditor can be converted to script", function () {
             "var shape3 = csg.fuse(shape0,shape1);"
         ]);
 
-        const shape0 = g1.elements[0];
-        const shape1 = g1.elements[1];
-        const shape2 = g1.elements[2];
+        const shape0 = g1.items[0];
+        const shape1 = g1.items[1];
+        const shape2 = g1.items[2];
 
         shape0.getDependantShapes().length.should.eql(1);
         shape1.getDependantShapes().length.should.eql(1);
@@ -271,9 +271,9 @@ describe("Testing GeometryEditor can be converted to script", function () {
             "var shape3 = csg.common(shape0,shape1);"
         ]);
 
-        const shape0 = g1.elements[0];
-        const shape1 = g1.elements[1];
-        const shape2 = g1.elements[2];
+        const shape0 = g1.items[0];
+        const shape1 = g1.items[1];
+        const shape2 = g1.items[2];
 
         shape0.getDependantShapes().length.should.eql(1);
         shape1.getDependantShapes().length.should.eql(1);
@@ -290,9 +290,9 @@ describe("Testing GeometryEditor can be converted to script", function () {
 
         const g1 = buildDemoObjectCutBoxes();
 
-        g1.getPossibleAncestors(g1.elements[0]).length.should.eql(0);
-        g1.getPossibleAncestors(g1.elements[1]).length.should.eql(1);
-        g1.getPossibleAncestors(g1.elements[2]).length.should.eql(2);
+        g1.getPossibleAncestors(g1.items[0]).length.should.eql(0);
+        g1.getPossibleAncestors(g1.items[1]).length.should.eql(1);
+        g1.getPossibleAncestors(g1.items[2]).length.should.eql(2);
     });
 
 
@@ -346,16 +346,16 @@ describe("Testing GeometryEditor can be converted to script", function () {
         const g2 = deserialized(str);
 
         g1.should.be.instanceOf(GeometryEditor);
-        g1.elements.length.should.eql(3);
-        g1.elements[0].should.be.instanceOf(GeomPrimitiveBox);
-        g1.elements[1].should.be.instanceOf(GeomPrimitiveBox);
-        g1.elements[2].should.be.instanceOf(GeomOperationCut);
+        g1.items.length.should.eql(3);
+        g1.items[0].should.be.instanceOf(GeomPrimitiveBox);
+        g1.items[1].should.be.instanceOf(GeomPrimitiveBox);
+        g1.items[2].should.be.instanceOf(GeomOperationCut);
 
         g2.should.be.instanceOf(GeometryEditor);
-        g2.elements.length.should.eql(3);
-        g2.elements[0].should.be.instanceOf(GeomPrimitiveBox);
-        g2.elements[1].should.be.instanceOf(GeomPrimitiveBox);
-        g2.elements[2].should.be.instanceOf(GeomOperationCut);
+        g2.items.length.should.eql(3);
+        g2.items[0].should.be.instanceOf(GeomPrimitiveBox);
+        g2.items[1].should.be.instanceOf(GeomPrimitiveBox);
+        g2.items[2].should.be.instanceOf(GeomOperationCut);
     });
 
 
@@ -364,9 +364,10 @@ describe("Testing GeometryEditor can be converted to script", function () {
         it("should clone a Box", function () {
 
             const g1 = buildDemoObjectWithBox();
-            const shape = g1.elements[0];
+            const shape = g1.items[0];
             shape.should.be.instanceof(GeomPrimitiveBox);
             const cloned_shape = shape.clone();
+            should(cloned_shape._id).equal(null,"a cloned entity should not have a _id yet");
 
             cloned_shape.toString().should.eql(shape.toString());
             should(cloned_shape._id).eql(null);
@@ -375,18 +376,20 @@ describe("Testing GeometryEditor can be converted to script", function () {
         it("should clone a Cylinder", function () {
 
             const g1 = buildDemoObjectWithCylinder();
-            const shape = g1.elements[0];
+            const shape = g1.items[0];
             shape.should.be.instanceof(GeomPrimitiveCylinder);
             const cloned_shape = shape.clone();
+            should(cloned_shape._id).equal(null,"a cloned entity should not have a _id yet");
 
             cloned_shape.toString().should.eql(shape.toString());
         });
         it("should clone a Cone", function () {
 
             const g1 = buildDemoObjectWithCone();
-            const shape = g1.elements[0];
+            const shape = g1.items[0];
             shape.should.be.instanceof(GeomPrimitiveCone);
             const cloned_shape = shape.clone();
+            should(cloned_shape._id).equal(null,"a cloned entity should not have a _id yet");
 
             cloned_shape.toString().should.eql(shape.toString());
         });
@@ -394,18 +397,20 @@ describe("Testing GeometryEditor can be converted to script", function () {
         it("should clone a Sphere", function () {
 
             const g1 = buildDemoObjectWithSphere();
-            const shape = g1.elements[0];
+            const shape = g1.items[0];
             shape.should.be.instanceof(geometry_editor.GeomPrimitiveSphere);
             const cloned_shape = shape.clone();
+            should(cloned_shape._id).equal(null,"a cloned entity should not have a _id yet");
 
             cloned_shape.toString().should.eql(shape.toString());
         });
         it("should clone a Torus", function () {
 
             const g1 = buildDemoObjectWithTorus();
-            const shape = g1.elements[0];
+            const shape = g1.items[0];
             shape.should.be.instanceof(geometry_editor.GeomPrimitiveTorus);
             const cloned_shape = shape.clone();
+            should(cloned_shape._id).equal(null,"a cloned entity should not have a _id yet");
 
             cloned_shape.toString().should.eql(shape.toString());
         });
@@ -413,9 +418,10 @@ describe("Testing GeometryEditor can be converted to script", function () {
         it("should clone a Cut Operation", function () {
 
             const g1 = buildDemoObjectCutBoxes();
-            const shape = g1.elements[2];
+            const shape = g1.items[2];
             shape.should.be.instanceof(geometry_editor.GeomOperationCut);
             const cloned_shape = shape.clone();
+            should(cloned_shape._id).equal(null,"a cloned entity should not have a _id yet");
 
             cloned_shape.getShapeConnectors().length.should.eql(2);
 
@@ -425,10 +431,11 @@ describe("Testing GeometryEditor can be converted to script", function () {
         it("should clone a Rotate Transformation", function () {
 
             const g1 = buildDemoObjectWithRotate();
-            const shape = g1.elements[3];
+            const shape = g1.items[3];
             shape.should.be.instanceof(geometry_editor.GeomTransfoRotate);
 
             const cloned_shape = shape.clone();
+            should(cloned_shape._id).equal(null,"a cloned entity should not have a _id yet");
 
             cloned_shape.toString().should.eql(shape.toString());
         });
@@ -436,10 +443,11 @@ describe("Testing GeometryEditor can be converted to script", function () {
         it("should clone a Translate Transformation", function () {
 
             const g1 = buildDemoObjectWithTranslate();
-            const shape = g1.elements[3];
+            const shape = g1.items[3];
             shape.should.be.instanceof(geometry_editor.GeomTransfoTranslate);
 
             const cloned_shape = shape.clone();
+            should(cloned_shape._id).equal(null,"a cloned entity should not have a _id yet");
 
             cloned_shape.toString().should.eql(shape.toString());
         });
@@ -447,11 +455,12 @@ describe("Testing GeometryEditor can be converted to script", function () {
 
     it("should edit and replace an element in the tree", function () {
         const g1 = buildDemoObjectCutBoxes();
-        const shape = g1.elements[2];
+        const shape = g1.items[2];
         shape.should.be.instanceof(geometry_editor.GeomOperationCut);
 
         const cloned_shape = shape.clone();
         should(cloned_shape._id).eql(null);
+        should(cloned_shape._id).equal(null,"a cloned entity should not have a _id yet");
 
         const possibleAncestors = g1.getPossibleAncestors(shape);
 
@@ -465,33 +474,33 @@ describe("Testing GeometryEditor can be converted to script", function () {
 
     it("should delete the last element (by shape)", function () {
         const g1 = buildDemoObjectCutBoxes();
-        const shape = g1.elements[2];
+        const shape = g1.items[2];
 
-        g1.elements[0].getDependantShapes().length.should.eql(1);
-        g1.elements[1].getDependantShapes().length.should.eql(1);
-        g1.elements.length.should.eql(3);
+        g1.items[0].getDependantShapes().length.should.eql(1);
+        g1.items[1].getDependantShapes().length.should.eql(1);
+        g1.items.length.should.eql(3);
         g1.deleteItem(shape);
-        g1.elements.length.should.eql(2);
-        g1.elements[0].getDependantShapes().length.should.eql(0);
-        g1.elements[1].getDependantShapes().length.should.eql(0);
+        g1.items.length.should.eql(2);
+        g1.items[0].getDependantShapes().length.should.eql(0);
+        g1.items[1].getDependantShapes().length.should.eql(0);
 
     });
 
     it("should delete the last element (by index)", function () {
         const g1 = buildDemoObjectCutBoxes();
 
-        g1.elements[0].getDependantShapes().length.should.eql(1);
-        g1.elements[1].getDependantShapes().length.should.eql(1);
+        g1.items[0].getDependantShapes().length.should.eql(1);
+        g1.items[1].getDependantShapes().length.should.eql(1);
         g1.canDelete(0).should.eql(false);
         g1.canDelete(1).should.eql(false);
         g1.canDelete(2).should.eql(true);
 
-        g1.elements.length.should.eql(3);
+        g1.items.length.should.eql(3);
         g1.deleteItem(2);
 
-        g1.elements.length.should.eql(2);
-        g1.elements[0].getDependantShapes().length.should.eql(0);
-        g1.elements[1].getDependantShapes().length.should.eql(0);
+        g1.items.length.should.eql(2);
+        g1.items[0].getDependantShapes().length.should.eql(0);
+        g1.items[1].getDependantShapes().length.should.eql(0);
         g1.canDelete(0).should.eql(true);
         g1.canDelete(1).should.eql(true);
 
@@ -500,54 +509,70 @@ describe("Testing GeometryEditor can be converted to script", function () {
     it("should propagate name change to dependant entity links", function () {
 
         const g1 = buildDemoObjectCutBoxes();
-        g1.elements[2].toScript().should.eql("csg.cut(shape0,shape1);");
+        g1.items[2].toScript().should.eql("csg.cut(shape0,shape1);");
 
         // we should verify that element 0 is dependant
-        g1.elements[0].getDependantShapes().length.should.be.greaterThan(0);
+        g1.items[0].getDependantShapes().length.should.be.greaterThan(0);
 
 
         // simulate name change in editor on ELEMENT 0
-        const shape = g1.elements[0];
-        const cloned = shape.clone();
+        const shape = g1.items[0];
+        const cloned = shape.clone()
+        should(cloned._id).equal(null,"a cloned entity should not have a _id yet");
+        ;
         cloned.name.should.eql("shape0");
         cloned.name = "NEWNAME";
 
         g1.replaceItem(0, cloned);
 
         // we should verify that element 0 has remained dependant
-        g1.elements[0].getDependantShapes().length.should.be.greaterThan(0);
+        g1.items[0].getDependantShapes().length.should.be.greaterThan(0);
 
-        g1.elements[2].toScript().should.eql("csg.cut(NEWNAME,shape1);");
+        g1.items[2].toScript().should.eql("csg.cut(NEWNAME,shape1);");
 
     });
 
     it("GeomBase should provide a list of shape connectors", function () {
         const g1 = buildDemoObjectWithRotate();
-        g1.elements[0].getShapeConnectors().length.should.eql(0);
-        g1.elements[1].getShapeConnectors().length.should.eql(0);
+        g1.items[0].getShapeConnectors().length.should.eql(0);
+        g1.items[1].getShapeConnectors().length.should.eql(0);
 
         // cut element
-        g1.elements[2].getShapeConnectors().length.should.eql(2);
-        g1.elements[2].getShapeConnectors()[0].should.equal(g1.elements[2].leftArg);
-        g1.elements[2].getShapeConnectors()[1].should.equal(g1.elements[2].rightArg);
+        g1.items[2].getShapeConnectors().length.should.eql(2);
+        g1.items[2].getShapeConnectors()[0].should.equal(g1.items[2].leftArg);
+        g1.items[2].getShapeConnectors()[1].should.equal(g1.items[2].rightArg);
 
-        g1.elements[3].getShapeConnectors().length.should.eql(1);
-        g1.elements[3].getShapeConnectors()[0].should.equal(g1.elements[3].geometry);
+        g1.items[3].getShapeConnectors().length.should.eql(1);
+        g1.items[3].getShapeConnectors()[0].should.equal(g1.items[3].geometry);
 
+    });
+
+    it("should be possible to access widget by name",function() {
+
+        const g1 = buildDemoObjectWithRotate();
+        g1.getWidgetByName("shape1").name.should.eql("shape1");
+    });
+
+    it("should be possible to access widget by name / missing widget",function() {
+
+        const g1 = buildDemoObjectWithRotate();
+        should.not.exist(g1.getWidgetByName("unknown shape name"));
     });
 
     it("should handle inconsistent shapes links", function () {
 
         const g1 = buildDemoObjectCutBoxes();
-        g1.elements[2].toScript().should.eql("csg.cut(shape0,shape1);");
+        g1.items[2].toScript().should.eql("csg.cut(shape0,shape1);");
 
         // we should verify that element 0 is dependant
-        g1.elements[0].getDependantShapes().length.should.be.greaterThan(0);
+        g1.items[0].getDependantShapes().length.should.be.greaterThan(0);
 
 
         // simulate name change in editor on ELEMENT 0
-        const shape = g1.elements[2];
+        const shape = g1.items[2];
         const cloned = shape.clone();
+        should(cloned._id).equal(null,"a cloned entity should not have a _id yet");
+
         cloned.name.should.eql("shape2");
 
         const tmp1 = cloned.leftArg.get();
@@ -561,7 +586,9 @@ describe("Testing GeometryEditor can be converted to script", function () {
         // now commit the change -> this should throw
         should.throws(function () {
             g1.replaceItem(2, cloned);
-        },"expecting replaceItem to throw because cloned is invalid (it as 2 connectors pointing to the sampe shape) ");
+        },"expecting replaceItem to throw because cloned is invalid (as it would lead to 2 connectors pointing to the same shape) ");
+
+        should(cloned._id).equal(null,"a cloned entity should STILL not have a _id -> the aborted replaceItem should preserve the cloned object");
 
         const errorList = [];
         g1.checkReplaceItem(2, cloned, errorList).should.eql(false);
@@ -583,9 +610,9 @@ describe("Testing GeometryEditor can be converted to script", function () {
 
 
         // we should verify that element 0 has remained dependant
-        g1.elements[0].getDependantShapes().length.should.be.greaterThan(0);
+        g1.items[0].getDependantShapes().length.should.be.greaterThan(0);
 
-        g1.elements[2].toScript().should.eql("csg.cut(shape1,shape0);");
+        g1.items[2].toScript().should.eql("csg.cut(shape1,shape0);");
 
     });
 
