@@ -52,8 +52,8 @@ future_YourWidget = YourWidget;
 class MyWidgetCollection extends  WidgetCollection
 {
 
-    addSomeWidget() {
-        return this._registerWidget(new MyWidget());
+    addSomeWidget(name) {
+        return this._registerWidget(new MyWidget(name));
     }
     getWidgetBaseClass(){
         return MyWidget;
@@ -86,8 +86,6 @@ describe("WidgetCollection",function(){
 
     });
 
-
-
     it("should link element of a collection",function() {
 
         const c = new MyWidgetCollection();
@@ -100,18 +98,19 @@ describe("WidgetCollection",function(){
         w2.getDependantEntities().length.should.eql(0);
         w3.getDependantEntities().length.should.eql(0);
 
+        // let connect w3 to w1
         w3.myLink1.set(w1);
         w1.getDependantEntities().length.should.eql(1);
         w1.getDependantEntities()[0].should.equal(w3);
 
 
+        // let disconnect w3 from w1
         w3.myLink1.set(null);
-
-        w2.myLink1.set(null);
+        w1.getDependantEntities().length.should.eql(0);
 
     });
 
-    it("should prevent deletion of entity that are observed by others",function() {
+    it("WidgetBase#canDelete : it should prevent deletion of entity that are observed by others",function() {
         const c = new MyWidgetCollection();
 
         const w1 = c.addSomeWidget();
@@ -122,13 +121,17 @@ describe("WidgetCollection",function(){
         w2.canDelete().should.eql(true);
 
         w2.myLink1.set(w1);
-        w1.canDelete().should.eql(false);
+        w1.canDelete().should.eql(false,"w1 cannot be delete because it is referenced by w2");
         w2.canDelete().should.eql(true);
 
     });
 
+
+
     it("should be able to edit one element and replace it",function() {
+
         const c = new MyWidgetCollection();
+
         const w1 = c.addSomeWidget("w1");
         const w2 = c.addSomeWidget("w2");
         const w3 = c.addSomeWidget("w3");
@@ -158,11 +161,33 @@ describe("WidgetCollection",function(){
         w2.canDelete().should.eql(true);
         c.deleteItem(w2);
 
+        w2._id.should.eql("disposed","Item should now be marked as disposed");
+
         c.items.length.should.eql(1);
     });
 
+    it("WidgetBase#deleteWithDependant : it should reset linked on dependant entities when an item is deleted",function() {
+
+        const c = new MyWidgetCollection();
+        const w1 = c.addSomeWidget();
+        const w2 = c.addSomeWidget();
+        w2.myLink1.set(w1); // w2 uses w1 => w2 is the parent and w1 is the child
+
+        w1.canDelete().should.eql(false);
+
+        // even though canDelete is false, the item can deleted, this will affect dependant entities
+        c.deleteItem(w1);
+
+        // in this case w2.myLink1 should now be  set to null because w1 doesn't exist in the collection anymore
+        should.not.exist(w2.myLink1.get());
+        w1._id.should.eql("disposed","Item should now be marked as disposed");
+    });
 
     it("should be possible to extract a sub set ",function() {
+
+        // Given  a widget collection with a nest of 4 items
+        //
+        //    w1 , w2 (=> w1) , w3 (=> w1) , w4
 
         const c = new MyWidgetCollection();
         const w1 = c.addSomeWidget("w1");
@@ -178,8 +203,16 @@ describe("WidgetCollection",function(){
         w2.getDependantEntities().length.should.eql(0);
         w4.getDependantEntities().length.should.eql(0);
 
+
+        // When I extract a subset on [w2,w4]
         const subset = c.extractSubset([w2,w4]);
-         subset.should.be.instanceof(MyWidgetCollection);
+        subset.should.be.instanceof(MyWidgetCollection);
+
+        // Then this subset should only contains
+        // w1 , w2 (=> w1), and w4
+        // ( note that:
+        //     - w1 has been added because it is needed by w2
+        //     - w3 is left excluded.
 
         subset.items.length.should.eql(3);
 
@@ -199,11 +232,10 @@ describe("WidgetCollection",function(){
     });
 
     it("should not interfere with external links ",function() {
+
         const c = new MyWidgetCollection();
 
         const extra = new YourWidget("Extra");
-
-
 
         extra._id= 3456;
 
@@ -214,11 +246,9 @@ describe("WidgetCollection",function(){
 
         c.getPossibleAncestors(w2).length.should.eql(1);
 
-
         should.throws(function() {
             c.replaceItem(w1,extra);
         });
-
 
         // ------------------------------------------------
         // now simulate edition
