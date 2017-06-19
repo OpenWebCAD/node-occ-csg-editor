@@ -4,32 +4,40 @@ const WidgetCollection = require("../lib/widget_collection").WidgetCollection;
 const WidgetConnector = require("../lib/widget_connector").WidgetConnector;
 const should =require("should");
 
+const WidgetBaseConn = require("../lib/widget_connector_list").WidgetBaseConn;
+
+const assert = require("assert");
+
 const WidgetConnectorList = require("../lib/widget_connector_list").WidgetConnectorList;
 
 
-class LittleThing extends WidgetBase
-{
-
-}
-
-class LittleThingyConnector extends WidgetConnector
-{
-    getWidgetClass() { return LittleThing; }
-}
-
 class Ingredient extends WidgetBase
 {
-    constructor(name) {
-        super(name);
-        this.thiny = new LittleThingyConnector(this);
+
+}
+
+class IngredientConnector extends WidgetConnector
+{
+    getWidgetClass() { return Ingredient; }
+}
+
+
+class IngredientDose extends WidgetBaseConn
+{
+    constructor(parent) {
+        super(parent)
+        this.ingredientLink = new IngredientConnector(this);
         this.quantity = 1;
     }
 }
 
-class MyStuffConnectorList extends WidgetConnectorList
+class IngredientDoseList extends WidgetConnectorList
 {
+    constructor(parent) {
+        super(parent);
+    }
     getWidgetClass() {
-        return Ingredient;
+        return IngredientDose;
     }
 }
 
@@ -37,38 +45,39 @@ class Recipe extends WidgetBase
 {
     constructor(name) {
         super(name);
-        this._subObject = new MyStuffConnectorList(this);
+        this.recipeItems = new IngredientDoseList(this);
     }
 
-    addIngredient() {
-        const ingredient = new Ingredient();
-        this._subObject.add(ingredient);
-        return ingredient;
+    addIngredientDose() {
+        return this.recipeItems.addNewItem();
     }
-
-    getIngredient(index) {
-        if (!(index >=0 && index <this._subObject.length)) {
+    removeIngredientDose(item) {
+        return this.recipeItems.removeItem(item);
+    }
+    getIngredientDose(index) {
+        if (!(index >=0 && index <this.recipeItems.length)) {
             throw new Error("invalid index specified");
         }
-        return this._subObject[index];
+        return this.recipeItems[index];
     }
 
     clone() {
-        const clone = new MyStuffConnectorList(this.name);
+        const clone = new Recipe();
+        // to do ...
         return clone;
     }
 }
 
 
 
-class MyWidgetCollection2 extends  WidgetCollection
+class MyRecipeCollection extends  WidgetCollection
 {
 
-    addComplexWidget() {
-        return this._registerWidget(new Recipe());
+    addRecipe(name) {
+        return this._registerWidget(new Recipe(name));
     }
-    addLittleThing() {
-        return this._registerWidget(new LittleThing());
+    addIngredient(name) {
+        return this._registerWidget(new Ingredient(name));
     }
     getWidgetBaseClass(){
         return WidgetBase;
@@ -79,40 +88,64 @@ describe("WidgetCollectionList",function() {
 
     it("should create a widget collection",function() {
 
-        const wc = new MyWidgetCollection2();
+        const wc = new MyRecipeCollection();
 
-        const lt1= wc.addLittleThing();
-        const lt2= wc.addLittleThing();
-        const lt3= wc.addLittleThing();
-        const lt4= wc.addLittleThing();
-        const lt5= wc.addLittleThing();
+        const ingredient1= wc.addIngredient("Mustard");
+        const ingredient2= wc.addIngredient("Carrot");
+        const ingredient3= wc.addIngredient("Cream");
+        const ingredient4= wc.addIngredient("Raspberries");
+        const ingredient5= wc.addIngredient("Rabbit");
 
-        const complexWidget = wc.addComplexWidget();
+        const recipe = wc.addRecipe("Rabbit à la Mustard");
 
-        complexWidget.getWidgetConnectors().length.should.eql(0);
+        recipe.getWidgetConnectors().length.should.eql(0);
+
+        ingredient1.getDependantEntities().length.should.eql(0);
+        ingredient2.getDependantEntities().length.should.eql(0);
+        ingredient3.getDependantEntities().length.should.eql(0);
+        ingredient4.getDependantEntities().length.should.eql(0);
+        ingredient5.getDependantEntities().length.should.eql(0);
 
         // the widget
-        const ingredient1 = complexWidget.addIngredient();
-        complexWidget.getWidgetConnectors().length.should.eql(1);
+        const dose1 = recipe.addIngredientDose();
+        recipe.getWidgetConnectors().length.should.eql(1);
 
-        ingredient1.thiny.set(lt1);
-        ingredient1.quantity = 42;
+        dose1.ingredientLink.set(ingredient1);
+        dose1.quantity = 42;
 
 
-        const ingredient2 = complexWidget.addIngredient();
-        complexWidget.getWidgetConnectors().length.should.eql(2);
+        const dose2 = recipe.addIngredientDose();
+        recipe.getWidgetConnectors().length.should.eql(2);
 
-        ingredient2.thiny.set(lt2);
-        ingredient2.quantity = 1;
+        dose2.ingredientLink.set(ingredient2);
+        dose2.quantity = 1;
 
-        const ingredient3 = complexWidget.addIngredient();
-        complexWidget.getWidgetConnectors().length.should.eql(3);
+        const dose3 = recipe.addIngredientDose();
+        recipe.getWidgetConnectors().length.should.eql(3);
 
-        ingredient3.thiny.set(lt3);
-        ingredient3.quantity = 32;
+        dose3.ingredientLink.set(ingredient3);
+        dose3.quantity = 32;
 
-        //xx const connector = theWidget.myLinkCollection.add()
+        ingredient1.getDependantEntities().length.should.eql(1);
+        ingredient2.getDependantEntities().length.should.eql(1);
+        ingredient3.getDependantEntities().length.should.eql(1);
+        ingredient4.getDependantEntities().length.should.eql(0);
+        ingredient5.getDependantEntities().length.should.eql(0);
 
+
+        // our recipe has 3 doses items
+        recipe.recipeItems.items.length.should.eql(3);
+
+        // ---------------- We should be able to remove dose from the recipe
+        recipe.removeIngredientDose(dose1);
+
+        recipe.recipeItems.items.length.should.eql(2);
+
+        ingredient1.getDependantEntities().length.should.eql(0,"ingredient1 should not be referenced anymore");
+        ingredient2.getDependantEntities().length.should.eql(1);
+        ingredient3.getDependantEntities().length.should.eql(1);
+        ingredient4.getDependantEntities().length.should.eql(0);
+        ingredient5.getDependantEntities().length.should.eql(0);
 
     });
 
