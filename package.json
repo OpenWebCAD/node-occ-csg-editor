@@ -24,6 +24,6 @@
     "should": "^11.2.1"
   },
   "dependencies": {
-    "serialijse": "0.0.19"
+    "serialijse": "0.0.23"
   }
 }
