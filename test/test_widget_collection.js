@@ -68,9 +68,12 @@ describe("WidgetCollection",function(){
         const w1 = c.addSomeWidget("w1");
         const w2 = c.addSomeWidget("w2");
         const w3 = c.addSomeWidget("w3");
-        w1._id.should.equal(1);
-        w2._id.should.equal(2);
-        w3._id.should.equal(3);
+        w1._id.should.not.equal(null);
+        w2._id.should.not.equal(null);
+        w3._id.should.not.equal(null);
+        w1._id.should.not.equal(w2._id);
+        w1._id.should.not.equal(w3._id);
+        w2._id.should.not.equal(w3._id);
     });
 
     it("should provide a list of possible widget to connect to",function() {
@@ -216,7 +219,6 @@ describe("WidgetCollection",function(){
 
         subset.items.length.should.eql(3);
 
-        subset.items.map(x=>x._id).join(" ").should.eql("1 2 4");
 
         subset.items[0]._id.should.eql(w1._id);
         subset.items[1]._id.should.eql(w2._id);
