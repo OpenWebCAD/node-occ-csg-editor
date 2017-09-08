@@ -21,9 +21,9 @@
   "author": "etienne.rossignon@gadz.org",
   "license": "MIT",
   "devDependencies": {
-    "should": "^11.2.1"
+    "should": "^13.0.1"
   },
   "dependencies": {
-    "serialijse": "^0.1.1"
+    "serialijse": "^0.1.3"
   }
 }
