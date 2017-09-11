@@ -640,4 +640,13 @@ var shape0 = csg.makeBox([0,0,0],[$A,$B,$A+$B]);`
         );
     });
 
+    it("should clone a geoemtry editor",function() {
+
+        const g = buildDemoParameterizedObjectWithBox();
+
+        const cloned = g.clone();
+
+        g.convertToScript().should.eql(cloned.convertToScript());
+
+    })
 });
