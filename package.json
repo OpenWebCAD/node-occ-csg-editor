@@ -1,6 +1,6 @@
 {
   "name": "node-occ-csg-editor",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "node-occ csg editor module",
   "main": "lib/geometry_editor.js",
   "directories": {
