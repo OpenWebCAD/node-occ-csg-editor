@@ -1,6 +1,6 @@
 {
   "name": "node-occ-csg-editor",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "node-occ csg editor module",
   "main": "lib/geometry_editor.js",
   "directories": {
@@ -21,8 +21,8 @@
   "author": "etienne.rossignon@gadz.org",
   "license": "MIT",
   "devDependencies": {
-    "mocha": "^3.5.0",
-    "should": "^13.0.1"
+    "mocha": "^3.5.3",
+    "should": "^13.1.0"
   },
   "dependencies": {
     "serialijse": "^0.1.3"
